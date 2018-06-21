@@ -44,7 +44,7 @@
 #/   $ bash repo-reaper
 #/
 #/   - Lists all empty repositories for each org that are empty and deletes them.
-#/   $ bash repo-reaper --execute=true
+#/   $ bash repo-reaper --execute=TRUE
 #/
 #/ API DOCUMENTATION:
 #/ All documentation can be found at https://developer.github.com/v3/
