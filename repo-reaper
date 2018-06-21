@@ -63,7 +63,7 @@ do
   esac
 done
 
-API_ROOT="https://api.github.com" # Change to https://<your-domain>/api/v3
+API_ROOT="https://<your-domain>/api/v3"
 EXECUTE="FALSE"
 
 # Verify Inputs
@@ -126,9 +126,9 @@ do
         echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
 
         # Call API to delete repos
-  #      curl --request DELETE \
-  #         --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
-  #         --header "authorization: Bearer ${GITHUB_TOKEN}"
+        curl --request DELETE \
+           --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
+           --header "authorization: Bearer ${GITHUB_TOKEN}"
     fi
 
   done
