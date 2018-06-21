@@ -96,7 +96,7 @@ do
 
   # Grab JSON of all organizations on GHE Instance
   REPO_RESPONSE="$(curl --request GET \
-  --url ${API_ROOT}/orgs/${org}/repos \
+  --url ${API_ROOT}/orgs/${ORG_NAME}/repos \
   -s \
   --header "authorization: Bearer ${GITHUB_TOKEN}" \
   --header "content-type: application/json")"
