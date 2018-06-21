@@ -1,7 +1,7 @@
 #!/bin/sh
 #/
 #/ NAME:
-#/ repo-cleaner - For a GitHub Enterprise Instance, lists every empty repository
+#/ repo-reaper - For a GitHub Enterprise Instance, lists every empty repository
 #/ in format <organization>:<repository> and deletes them if option is passed.
 #/
 #/ SYNOPSIS:
