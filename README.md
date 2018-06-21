@@ -1,2 +1,2 @@
 # IAmRepoReaper
-Lists every empty repository in format <organization>:<repository> and deletes them.
+Lists every empty repository in format `<organization>`:`<repository>` and deletes them.
