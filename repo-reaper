@@ -5,7 +5,7 @@
 #/ in format <organization>:<repository> and deletes them if option is passed.
 #/
 #/ SYNOPSIS:
-#/ repo-reaper
+#/ repo-reaper [--execute=TRUE]
 #/
 #/ DESCRIPTION:
 #/ For a GitHub Enterprise Instance, lists every empty repository in format
