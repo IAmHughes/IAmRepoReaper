@@ -63,5 +63,74 @@ do
   esac
 done
 
-API_ROOT="https://api.github.com"
+API_ROOT="https://api.github.com" # Change to https://<your-domain>/api/v3
 EXECUTE="FALSE"
+
+# Verify Inputs
+# If EXECUTE exists, needs to equal TRUE or FALSE
+if [[ ${EXECUTE} != "TRUE" ]] && [[ ${EXECUTE} != "FALSE" ]]; then
+    echo "ERROR: EXECUTE was not set to a proper value."
+    echo "  Ex: bash repo-reaper --execute=TRUE"
+    echo ""
+    echo "Exiting script with no changes."
+    echo ""
+    exit 1
+fi
+
+# Grab JSON of all organizations on GHE Instance
+ORG_RESPONSE="$(curl --request GET \
+  --url ${API_ROOT}/organizations \
+  -s \
+  --header "authorization: Bearer ${GITHUB_TOKEN}" \
+  --header "content-type: application/json")"
+
+# Loop through JSON to get every organization name.
+for org in $(echo "${ORG_RESPONSE}" | jq -r '.[] | @base64');
+do
+  get_org_name()
+  {
+    echo ${org} | base64 --decode | jq -r ${1}
+  }
+
+  ORG_NAME=$(get_org_name '.login')
+
+  # Grab JSON of all organizations on GHE Instance
+  REPO_RESPONSE="$(curl --request GET \
+  --url ${API_ROOT}/orgs/${org}/repos \
+  -s \
+  --header "authorization: Bearer ${GITHUB_TOKEN}" \
+  --header "content-type: application/json")"
+
+  # Loop through every organization to get every repository name and size.
+  for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
+  do
+    get_repo_info()
+    {
+      echo ${repo} | base64 --decode | jq -r ${1}
+    }
+
+    REPO_NAME=$(get_repo_info '.name')
+    REPO_SIZE=$(get_repo_info '.size')
+
+    # If repository has info, size will not be zero, therefore skip.
+    if [[ ${REPO_SIZE} -eq 0 ]]; then
+      continue;
+    fi
+
+    # If we are NOT deleting repository, list them
+    if [[ ${EXECUTE} = "FALSE" ]]; then
+      echo "${ORG_NAME}:${REPO_NAME}"
+
+    # EXECUTE is TRUE, we are deleting repositories
+    elif [[ ${EXECUTE} = "TRUE" ]]; then
+        echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
+
+        # Call API to delete repos
+  #      curl --request DELETE \
+  #         --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
+  #         --header "authorization: Bearer ${GITHUB_TOKEN}"
+    fi
+
+  done
+
+done
