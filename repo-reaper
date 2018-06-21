@@ -1,0 +1,136 @@
+#!/bin/sh
+#/
+#/ NAME:
+#/ repo-cleaner - For a GitHub Enterprise Instance, lists every empty repository
+#/ in format <organization>:<repository> and deletes them if option is passed.
+#/
+#/ SYNOPSIS:
+#/ repo-reaper
+#/
+#/ DESCRIPTION:
+#/ For a GitHub Enterprise Instance, lists every empty repository in format
+#/ <organization>:<repository> separated by new lines. Deleting them if passed
+#/ the option --execute=true
+#/   - Example Output: List all empty repositories
+#/     <organization1>:<repository1>
+#/     <organization1>:<repository2>
+#/     <organization3>:<repository1>
+#/
+#/ PRE-REQUISITES:
+#/ Before running this script, you must create a Personal Access Token (PAT)
+#/ at https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/
+#/ with the permissions <repo> and <admin:org> scopes and <delete_repo>. Read more
+#/ about scopes here: https://developer.github.com/apps/building-oauth-apps/scopes-for-oauth-apps/
+#/
+#/ Once created, you must export your PAT as an environment variable
+#/ named <GITHUB_TOKEN>.
+#/   - Exporting PAT as GITHUB_TOKEN
+#/   $ export GITHUB_TOKEN=abcd1234efg567
+#/
+#/ Additionally you will need to set the $API_ROOT at the top of the script to
+#/ your instance of GitHub Enterprise.
+#/  - _i.e._: https://MyGitHubEnterprise.com/api/v3
+#/
+#/ OPTIONS:
+#/ --execute
+#/ -e
+#/ When running the tool, this flag will delete every repo listed.
+#/   * _NOTE:_ You should run the script without this option first, verifying
+#/      that you want to delete every repository listed.
+#/
+#/ EXAMPLES:
+#/
+#/   - Lists all empty repositories for each org that are empty.
+#/   $ bash repo-reaper
+#/
+#/   - Lists all empty repositories for each org that are empty and deletes them.
+#/   $ bash repo-reaper --execute=true
+#/
+#/ API DOCUMENTATION:
+#/ All documentation can be found at https://developer.github.com/v3/
+
+# Parse options
+for i in "$@"
+do
+  case $i in
+    -e=*|--execute=*)
+    EXECUTE="${i#*=}"
+    shift
+    ;;
+    *)
+    # unknown option
+    ;;
+  esac
+done
+
+API_ROOT="https://api.github.com" # Change to https://<your-domain>/api/v3
+EXECUTE="FALSE"
+
+# Verify Inputs
+# If EXECUTE exists, needs to equal TRUE or FALSE
+if [[ ${EXECUTE} != "TRUE" ]] && [[ ${EXECUTE} != "FALSE" ]]; then
+    echo "ERROR: EXECUTE was not set to a proper value."
+    echo "  Ex: bash repo-reaper --execute=TRUE"
+    echo ""
+    echo "Exiting script with no changes."
+    echo ""
+    exit 1
+fi
+
+# Grab JSON of all organizations on GHE Instance
+ORG_RESPONSE="$(curl --request GET \
+  --url ${API_ROOT}/organizations \
+  -s \
+  --header "authorization: Bearer ${GITHUB_TOKEN}" \
+  --header "content-type: application/json")"
+
+# Loop through JSON to get every organization name.
+for org in $(echo "${ORG_RESPONSE}" | jq -r '.[] | @base64');
+do
+  get_org_name()
+  {
+    echo ${org} | base64 --decode | jq -r ${1}
+  }
+
+  ORG_NAME=$(get_org_name '.login')
+
+  # Grab JSON of all organizations on GHE Instance
+  REPO_RESPONSE="$(curl --request GET \
+  --url ${API_ROOT}/orgs/${ORG_NAME}/repos \
+  -s \
+  --header "authorization: Bearer ${GITHUB_TOKEN}" \
+  --header "content-type: application/json")"
+
+  # Loop through every organization to get every repository name and size.
+  for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
+  do
+    get_repo_info()
+    {
+      echo ${repo} | base64 --decode | jq -r ${1}
+    }
+
+    REPO_NAME=$(get_repo_info '.name')
+    REPO_SIZE=$(get_repo_info '.size')
+
+    # If repository has info, size will not be zero, therefore skip.
+    if [[ ${REPO_SIZE} -eq 0 ]]; then
+      continue;
+    fi
+
+    # If we are NOT deleting repository, list them
+    if [[ ${EXECUTE} = "FALSE" ]]; then
+      echo "${ORG_NAME}:${REPO_NAME}"
+
+    # EXECUTE is TRUE, we are deleting repositories
+    elif [[ ${EXECUTE} = "TRUE" ]]; then
+        echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
+
+        # Call API to delete repos
+  #      curl --request DELETE \
+  #         --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
+  #         --header "authorization: Bearer ${GITHUB_TOKEN}"
+    fi
+
+  done
+
+done
