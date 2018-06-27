@@ -59,6 +59,7 @@
 ########
 API_ROOT="https://<your-domain>/api/v3"
 EXECUTE="FALSE"
+EMPTY_REPO_COUNTER=0
 
 ##################################
 # Parse options/flags passed in. #
@@ -157,8 +158,11 @@ do
          --header "authorization: Bearer ${GITHUB_TOKEN}"
          
       echo "${REPO_NAME} was deleted from ${ORG_NAME} successfully."
+      
+      # Increment counter
+      EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
   fi
 done
 
-echo "Successfully deleted the empty repos from ${ORG_NAME}."
+echo "Successfully deleted ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
 exit 0
