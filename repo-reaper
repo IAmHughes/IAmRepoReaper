@@ -165,6 +165,7 @@ do
       # Increment counter
       EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
   fi
+  
 done
 
 ##################
