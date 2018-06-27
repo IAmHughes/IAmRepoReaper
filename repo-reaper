@@ -5,16 +5,16 @@
 #/ in format <organization>:<repository> and deletes them if option is passed.
 #/
 #/ SYNOPSIS:
-#/ repo-reaper [--execute=TRUE]
+#/ repo-reaper [--org=MyOrganization] [--execute=TRUE]
 #/
 #/ DESCRIPTION:
 #/ For a GitHub Enterprise Instance, lists every empty repository in format
 #/ <organization>:<repository> separated by new lines. Deleting them if passed
-#/ the option [--execute=true] is passed
+#/ the option [--execute=true].
 #/   - Example Output: List all empty repositories
-#/     <organization1>:<repository1>
-#/     <organization1>:<repository2>
-#/     <organization3>:<repository1>
+#/     <organization>:<repository1>
+#/     <organization>:<repository2>
+#/     <organization>:<repository1>
 #/
 #/ PRE-REQUISITES:
 #/ Before running this script, you must create a Personal Access Token (PAT)
@@ -32,6 +32,11 @@
 #/  - _i.e._: https://MyGitHubEnterprise.com/api/v3
 #/
 #/ OPTIONS:
+#/ --org
+#/ -o
+#/ When running the tool, this flag sets which organization's repositories you
+#/ want to inspect and delete (if they're empty).
+#/
 #/ --execute
 #/ -e
 #/ When running the tool, this flag will delete every repo listed.
@@ -40,11 +45,11 @@
 #/
 #/ EXAMPLES:
 #/
-#/   - Lists all empty repositories for each org that are empty.
-#/   $ bash repo-reaper
+#/   - Lists all empty repositories for the given organization.
+#/   $ bash repo-reaper --org=MyOrganization
 #/
-#/   - Lists all empty repositories for each org that are empty and deletes them.
-#/   $ bash repo-reaper --execute=TRUE
+#/   - Deletes all empty repositories for the given organization.
+#/   $ bash repo-reaper --org=MyOrganization --execute=TRUE
 #/
 #/ API DOCUMENTATION:
 #/ All documentation can be found at https://developer.github.com/v3/
