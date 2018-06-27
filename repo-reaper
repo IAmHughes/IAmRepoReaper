@@ -49,7 +49,7 @@
 #/ API DOCUMENTATION:
 #/ All documentation can be found at https://developer.github.com/v3/
 
-# Parse options
+# Parse options/flags passed in.
 for i in "$@"
 do
   case $i in
@@ -89,31 +89,31 @@ for org in $(echo "${ORG_RESPONSE}" | jq -r '.[] | @base64');
 do
   get_org_name()
   {
-    echo ${org} | base64 --decode | jq -r ${1}
+    echo ${org} | base64 --decode --ignore-garage | jq -r ${1}
   }
 
   ORG_NAME=$(get_org_name '.login')
 
-  # Grab JSON of all organizations on GHE Instance
+  # Grab JSON of all repositories for organization
   REPO_RESPONSE="$(curl --request GET \
   --url ${API_ROOT}/orgs/${ORG_NAME}/repos \
   -s \
   --header "authorization: Bearer ${GITHUB_TOKEN}" \
   --header "content-type: application/json")"
 
-  # Loop through every organization to get every repository name and size.
+  # Loop through every organization's repo to get every repository name and size.
   for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
   do
     get_repo_info()
     {
-      echo ${repo} | base64 --decode | jq -r ${1}
+      echo ${repo} | base64 --decode --ignore-garbage | jq -r ${1}
     }
 
     REPO_NAME=$(get_repo_info '.name')
     REPO_SIZE=$(get_repo_info '.size')
 
-    # If repository has info, size will not be zero, therefore skip.
-    if [[ ${REPO_SIZE} -eq 0 ]]; then
+    # If repository has data, size will not be zero, therefore skip.
+    if [[ ${REPO_SIZE} -ne 0 ]]; then
       continue;
     fi
 
