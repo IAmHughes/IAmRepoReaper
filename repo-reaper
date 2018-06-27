@@ -50,15 +50,15 @@
 #/ All documentation can be found at https://developer.github.com/v3/
 
 # Parse options/flags passed in.
-for i in "$@"
+for param in "$@"
 do
-  case $i in
+  case $param in
     -e=*|--execute=*)
-    EXECUTE="${i#*=}"
+    EXECUTE="${param#*=}"
     shift
     ;;
     -o=*|--org=*)
-    ORG_NAME="${i#*=}"
+    ORG_NAME="${param#*=}"
     shift
     ;;
     *)
@@ -71,70 +71,75 @@ API_ROOT="https://<your-domain>/api/v3"
 EXECUTE="FALSE"
 
 # Verify Inputs
+
+# If ORG_NAME wasn't passed
+if [[ -z ${ORG_NAME} ]]; then
+  echo "ERROR: ORG_NAME was not provided."
+  echo "  Ex: bash repo-reaper --org=MyOrganization --execute=TRUE"
+  echo ""
+  echo "Exiting script with no changes."
+  echo ""
+  exit 1
+fi
+
 # If EXECUTE exists, needs to equal TRUE or FALSE
 if [[ ${EXECUTE} != "TRUE" ]] && [[ ${EXECUTE} != "FALSE" ]]; then
     echo "ERROR: EXECUTE was not set to a proper value."
-    echo "  Ex: bash repo-reaper --execute=TRUE"
+    echo "  Ex: bash repo-reaper --org=MyOrganization --execute=TRUE"
     echo ""
     echo "Exiting script with no changes."
     echo ""
     exit 1
 fi
 
-# Grab JSON of all organizations on GHE Instance
-ORG_RESPONSE="$(curl --request GET \
-  --url ${API_ROOT}/organizations \
-  -s \
-  --header "authorization: Bearer ${GITHUB_TOKEN}" \
-  --header "content-type: application/json")"
+##################################################
+# Grab JSON of all repositories for organization #
+##################################################
+REPO_RESPONSE="$(curl --request GET \
+--url ${API_ROOT}/orgs/${ORG_NAME}/repos \
+-s \
+--header "authorization: Bearer ${GITHUB_TOKEN}" \
+--header "content-type: application/json")"
 
-# Loop through JSON to get every organization name.
-for org in $(echo "${ORG_RESPONSE}" | jq -r '.[] | @base64');
+##########################################################################
+# Loop through every organization's repo to get repository name and size #
+##########################################################################
+for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
 do
-  get_org_name()
+  #####################################
+  # Get the info from the json object #
+  #####################################
+  get_repo_info()
   {
-    echo ${org} | base64 --decode --ignore-garage | jq -r ${1}
+    echo ${repo} | base64 --decode --ignore-garbage | jq -r ${1}
   }
 
-  ORG_NAME=$(get_org_name '.login')
+  # Get the info from the JSON object
+  REPO_NAME=$(get_repo_info '.name')
+  REPO_SIZE=$(get_repo_info '.size')
 
-  # Grab JSON of all repositories for organization
-  REPO_RESPONSE="$(curl --request GET \
-  --url ${API_ROOT}/orgs/${ORG_NAME}/repos \
-  -s \
-  --header "authorization: Bearer ${GITHUB_TOKEN}" \
-  --header "content-type: application/json")"
+  # If repository has data, size will not be zero, therefore skip.
+  if [[ ${REPO_SIZE} -ne 0 ]]; then
+    continue;
+  fi
 
-  # Loop through every organization's repo to get every repository name and size.
-  for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
-  do
-    get_repo_info()
-    {
-      echo ${repo} | base64 --decode --ignore-garbage | jq -r ${1}
-    }
+  ################################################
+  # If we are NOT deleting repository, list them #
+  ################################################
+  if [[ ${EXECUTE} = "FALSE" ]]; then
+    echo "${ORG_NAME}:${REPO_NAME}"
 
-    REPO_NAME=$(get_repo_info '.name')
-    REPO_SIZE=$(get_repo_info '.size')
+  #################################################
+  # EXECUTE is TRUE, we are deleting repositories #
+  #################################################
+  elif [[ ${EXECUTE} = "TRUE" ]]; then
+      echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
 
-    # If repository has data, size will not be zero, therefore skip.
-    if [[ ${REPO_SIZE} -ne 0 ]]; then
-      continue;
-    fi
-
-    # If we are NOT deleting repository, list them
-    if [[ ${EXECUTE} = "FALSE" ]]; then
-      echo "${ORG_NAME}:${REPO_NAME}"
-
-    # EXECUTE is TRUE, we are deleting repositories
-    elif [[ ${EXECUTE} = "TRUE" ]]; then
-        echo "${REPO_NAME} will be deleted from ${ORG_NAME}!"
-
-        # Call API to delete repos
-        curl --request DELETE \
-           --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
-           --header "authorization: Bearer ${GITHUB_TOKEN}"
-    fi
-
-  done
-
+      ############################
+      # Call API to delete repos #
+      ############################
+      curl --request DELETE \
+         --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
+         --header "authorization: Bearer ${GITHUB_TOKEN}"
+  fi
 done
