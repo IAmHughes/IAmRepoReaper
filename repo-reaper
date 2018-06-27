@@ -54,7 +54,16 @@
 #/ API DOCUMENTATION:
 #/ All documentation can be found at https://developer.github.com/v3/
 
-# Parse options/flags passed in.
+########
+# VARS #
+########
+API_ROOT="https://<your-domain>/api/v3"
+EXECUTE="FALSE"
+
+##################################
+# Parse options/flags passed in. #
+##################################
+
 for param in "$@"
 do
   case $param in
@@ -72,10 +81,9 @@ do
   esac
 done
 
-API_ROOT="https://<your-domain>/api/v3"
-EXECUTE="FALSE"
-
-# Verify Inputs
+#################
+# Verify Inputs #
+#################
 
 # If ORG_NAME wasn't passed
 if [[ -z ${ORG_NAME} ]]; then
@@ -87,7 +95,7 @@ if [[ -z ${ORG_NAME} ]]; then
   exit 1
 fi
 
-# If EXECUTE exists, needs to equal TRUE or FALSE
+# If EXECUTE exists, it needs to equal TRUE or FALSE
 if [[ ${EXECUTE} != "TRUE" ]] && [[ ${EXECUTE} != "FALSE" ]]; then
     echo "ERROR: EXECUTE was not set to a proper value."
     echo "  Ex: bash repo-reaper --org=MyOrganization --execute=TRUE"
@@ -144,6 +152,7 @@ do
       # Call API to delete repos #
       ############################
       curl --request DELETE \
+         -s \
          --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
          --header "authorization: Bearer ${GITHUB_TOKEN}"
   fi
