@@ -143,6 +143,9 @@ do
   if [[ ${EXECUTE} = "FALSE" ]]; then
     echo "${ORG_NAME}:${REPO_NAME}"
 
+    # Increment counter
+    EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
+
   #################################################
   # EXECUTE is TRUE, we are deleting repositories #
   #################################################
@@ -156,13 +159,20 @@ do
          -s \
          --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
          --header "authorization: Bearer ${GITHUB_TOKEN}"
-         
+
       echo "${REPO_NAME} was deleted from ${ORG_NAME} successfully."
-      
+
       # Increment counter
       EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
   fi
 done
 
-echo "Successfully deleted ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
+##################
+# Exit Messaging #
+##################
+if [[ ${EXECUTE} = "TRUE" ]]; then
+  echo "Successfully deleted ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
+else
+  echo "Successfully found ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
+fi
 exit 0
