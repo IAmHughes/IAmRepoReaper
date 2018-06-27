@@ -155,5 +155,10 @@ do
          -s \
          --url ${API_ROOT}/repos/${ORG_NAME}/${REPO_NAME} \
          --header "authorization: Bearer ${GITHUB_TOKEN}"
+         
+      echo "${REPO_NAME} was deleted from ${ORG_NAME} successfully."
   fi
 done
+
+echo "Successfully deleted the empty repos from ${ORG_NAME}."
+exit 0
