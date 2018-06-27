@@ -10,7 +10,7 @@
 #/ DESCRIPTION:
 #/ For a GitHub Enterprise Instance, lists every empty repository in format
 #/ <organization>:<repository> separated by new lines. Deleting them if passed
-#/ the option --execute=true
+#/ the option [--execute=true] is passed
 #/   - Example Output: List all empty repositories
 #/     <organization1>:<repository1>
 #/     <organization1>:<repository2>
@@ -57,8 +57,12 @@ do
     EXECUTE="${i#*=}"
     shift
     ;;
+    -o=*|--org=*)
+    ORG_NAME="${i#*=}"
+    shift
+    ;;
     *)
-    # unknown option
+    # unknown option, do nothing
     ;;
   esac
 done
