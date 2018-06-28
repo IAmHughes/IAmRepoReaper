@@ -141,7 +141,7 @@ do
   #####################################
   get_repo_info()
   {
-    echo ${repo} | base64 --decode --ignore-garbage | jq -r ${1}
+    echo ${repo} | base64 --decode | jq -r ${1}
   }
 
   # Get the info from the JSON object
@@ -181,15 +181,17 @@ do
       # Increment counter
       EMPTY_REPO_COUNTER=$((EMPTY_REPO_COUNTER+1))
   fi
-  
+
 done
 
 ##################
 # Exit Messaging #
 ##################
 if [[ ${EXECUTE} = "TRUE" ]]; then
+  echo ""
   echo "Successfully deleted ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
 else
+  echo ""
   echo "Successfully found ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
 fi
 exit 0
