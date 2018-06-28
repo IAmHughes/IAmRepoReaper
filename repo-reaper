@@ -133,9 +133,21 @@ if [[ ${EXECUTE} != "TRUE" ]] && [[ ${EXECUTE} != "FALSE" ]]; then
     exit 1
 fi
 
+if [[ ${EXECUTE} = "TRUE" ]]; then
+  echo "Searching for empty repositories within the Organization: "${ORG_NAME}
+  echo "EXECUTE was set to TRUE!!! Empty repositories will be deleted!!!"
+  echo "You have 5 seconds to cancel this script."
+  sleep 5
+else
+  echo "Searching for empty repositories within the Organization: "${ORG_NAME}
+  echo "EXECUTE was set to FALSE, no repositories will be deleted."
+fi
+
 ##################################################
 # Grab JSON of all repositories for organization #
 ##################################################
+echo "Getting a list of the repositories within "${ORG_NAME}
+
 REPO_RESPONSE="$(curl --request GET \
 --url ${API_ROOT}/orgs/${ORG_NAME}/repos \
 -s \
@@ -145,6 +157,13 @@ REPO_RESPONSE="$(curl --request GET \
 ##########################################################################
 # Loop through every organization's repo to get repository name and size #
 ##########################################################################
+echo "Generating list of empty repositories."
+echo ""
+echo "-------------------"
+echo "| Empty Repo List |"
+echo "| Org : Repo Name |"
+echo "-------------------"
+
 for repo in $(echo "${REPO_RESPONSE}" | jq -r '.[] | @base64');
 do
   #####################################
@@ -203,6 +222,6 @@ if [[ ${EXECUTE} = "TRUE" ]]; then
   echo "Successfully deleted ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
 else
   echo ""
-  echo "Successfully found ${EMPTY_REPO_COUNTER} empty repos from ${ORG_NAME}."
+  echo "Successfully discovered ${EMPTY_REPO_COUNTER} empty repos within ${ORG_NAME}."
 fi
 exit 0
