@@ -14,7 +14,7 @@
 #/   - Example Output: List all empty repositories
 #/     <organization>:<repository1>
 #/     <organization>:<repository2>
-#/     <organization>:<repository1>
+#/     <organization>:<repository3>
 #/
 #/ PRE-REQUISITES:
 #/ Before running this script, you must create a Personal Access Token (PAT)
