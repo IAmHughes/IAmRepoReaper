@@ -1,5 +1,12 @@
 # IAmRepoReaper
-This script, `repo-reaper`, will grab every empty repository on a GitHub Enterprise Instance and list them. If given the `--execute=TRUE` option, will delete every repository that is empty.
+This script will take every empty repository on a GitHub Enterprise Instance and list them, deleting them if desired.
+
+## DESCRIPTION:
+For a GitHub Enterprise Instance, lists every empty repository in format <organization>:<repository> separated by new lines. Deleting them if passed the option `--execute=TRUE`
+  - Example Output: List all empty repositories
+    organization:repository1
+    organization:repository2
+    organization:repository3
 
 ## Pre-Requisites
 
@@ -22,33 +29,29 @@ repo-reaper - For a GitHub Enterprise Instance, lists every empty repository in 
 #### SYNOPSIS:
 
 ```
-repo-reaper [--execute=TRUE]
+repo-reaper [--org=MyOrganization] [--execute=TRUE]
 ```
 
-#### DESCRIPTION:
-For a GitHub Enterprise Instance, lists every empty repository in format <organization>:<repository> separated by new lines. Deleting them if passed the option `--execute=TRUE`
-  - Example Output: List all empty repositories
-    <organization1>:<repository1>
-    <organization1>:<repository2>
-    <organization3>:<repository1>
-
 #### OPTIONS:
+
+`--org | -o`
+When running the tool, this flag sets which organization's repositories you want to inspect and delete (if they're empty).
 
 `--execute | -e`
 When running the tool, this flag will delete every repo listed.
   * _NOTE:_ You should run the script without this option first, verifying that you want to delete every repository listed.
 
 #### EXAMPLES:
-  - Lists all empty repositories for each org that are empty.
+  - Lists all empty repositories for the given org that are empty.
   
 ```shell
-$ bash repo-reaper
+$ bash repo-reaper --org=MyOrganization
 ```
 
-  - Lists all empty repositories for each org that are empty and deletes them.
+  - Lists all empty repositories for the given org that are empty and deletes them.
 
 ```shell
-$ bash repo-reaper --execute=TRUE
+$ bash repo-reaper --org=MyOrganization --execute=TRUE
 ```
 
 #### API DOCUMENTATION:
