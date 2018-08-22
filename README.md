@@ -8,7 +8,7 @@ For a GitHub Enterprise Instance, lists every empty repository in format <organi
     organization:repository2
     organization:repository3
 
-## Pre-Requisites
+## PRE-REQUISITES
 
 #### AUTHENTICATION:
 Before running this script, you must create a Personal Access Token (PAT) at https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/ with the permissions <repo> and <admin:org> scopes and <delete_repo>. Read more about scopes here: https://developer.github.com/apps/building-oauth-apps/scopes-for-oauth-apps/
@@ -57,16 +57,16 @@ $ bash repo-reaper --org=MyOrganization --execute=TRUE
 #### API DOCUMENTATION:
 All documentation can be found at the [GitHub Developer Docs](https://developer.github.com/v3/) page.
 
-## Contributing
+## CONTRIBUTING
 
 Please read [CONTRIBUTING.md](https://github.com/IAmHughes/IAmRepoCleaner/blob/master/.github/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Authors
+## AUTHORS
 
 * **Thomas Hughes** - _Maintainer / On-Going Support_ - [@IAmHughes](https://GitHub.com/IAmHughes)
 
 See also the list of [contributors](https://github.com/IAmHughes/IAmRepoReaper/contributors) who participated in this project.
 
-## License
+## LICENSE
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/IAmHughes/IAmRepoReaper/blob/master/LICENSE) file for details.
