@@ -1,5 +1,5 @@
 # IAmRepoReaper
-This script will take every empty repository on a GitHub Enterprise Instance and list them, deleting them if desired.
+This script will take every empty repository on a GitHub Enterprise Instance and list them, deleting them if desired. This is no longer actively maintained, and therefore may not function as originally intended. The recommendation is to run this in a sandbox environment first.
 
 ## DESCRIPTION:
 For a GitHub Enterprise Instance, lists every empty repository in format <organization>:<repository> separated by new lines. Deleting them if passed the option `--execute=TRUE`
